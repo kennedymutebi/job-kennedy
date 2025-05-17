@@ -52,7 +52,7 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
         }
         
         # Create company
-        company = Company.objects.create(**company_data)
+        company =  Company.objects.create(**company_data)
         
         # Create user
         user = User.objects.create_user(

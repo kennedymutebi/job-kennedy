@@ -5,13 +5,14 @@ import {
   Navigate,
 } from "react-router-dom";
 import Welcome from "./Pages/Welcome/Welcome";
-Welcome
+import Login from "./Pages/Login/Login";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Welcome />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );

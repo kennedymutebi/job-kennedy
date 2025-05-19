@@ -1,5 +1,8 @@
 import { useState } from "react";
 import "./SignUp.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 import {
   FaBuilding,
@@ -75,19 +78,102 @@ function SignUpForm() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
 
     if (Object.keys(newErrors).length === 0) {
       setIsSubmitting(true);
-      // Simulate API call
-      setTimeout(() => {
-        console.log("Form submitted successfully", formData);
-        alert("Registration successful! You can now log in.");
+
+      // Prepare data for API
+      const apiData = {
+        company_name: formData.companyName,
+        industry: formData.industry,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone_number: formData.phone || null,
+        password: formData.password,
+        country: formData.country || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        num_employees: formData.employees || null,
+      };
+
+      try {
+        const response = await axios.post(
+          "https://kennedymutebi.pythonanywhere.com/api/v1/api/register/admin/",
+          apiData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // Success toast notification
+        toast.success("Registration successful! You can now log in.", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        // Reset form
+        setFormData({
+          companyName: "",
+          industry: "",
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          password: "",
+          confirmPassword: "",
+          country: "",
+          city: "",
+          state: "",
+          employees: "",
+          agreeTerms: false,
+        });
+      } catch (error) {
+        // Show error message
+        const errorMessage =
+          error.response?.data?.message ||
+          "Registration failed. Please try again.";
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        // Handle specific API validation errors
+        if (error.response?.data?.errors) {
+          const apiErrors = {};
+          Object.keys(error.response.data.errors).forEach((key) => {
+            // Map API error fields to form fields
+            const fieldMapping = {
+              company_name: "companyName",
+              first_name: "firstName",
+              last_name: "lastName",
+              email: "email",
+              phone_number: "phone",
+              password: "password",
+              // Add more mappings as needed
+            };
+
+            const formField = fieldMapping[key] || key;
+            apiErrors[formField] = error.response.data.errors[key][0];
+          });
+          setErrors({ ...newErrors, ...apiErrors });
+        }
+      } finally {
         setIsSubmitting(false);
-        // Here you would typically make an API call to register the user
-      }, 1500);
+      }
     } else {
       setErrors(newErrors);
     }
@@ -116,6 +202,7 @@ function SignUpForm() {
 
   return (
     <div className="form-wrapper">
+      <ToastContainer />
       <h2>Create Your Account</h2>
       <p className="form-subtitle">
         Register your company to get started with ISMS

@@ -1,6 +1,20 @@
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Welcome from "./Pages/Welcome/Welcome";
+Welcome
 
 const App = () => {
-  return <div>Hello World!</div>;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Welcome />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default App;
